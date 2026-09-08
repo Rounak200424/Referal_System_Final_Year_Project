@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Browse Referrals | ReferConnect</title>
+
+  <link rel="stylesheet" href="referal.css">
+</head>
+
+<body>
+
+  <!-- =========================
+       NAVBAR
+  ========================== -->
+
+  <header class="navbar">
+
+    <div class="container nav">
+
+      <!-- LOGO -->
+
+      <a href="homepage.html" class="logo">
+        <span class="logo-mark">R</span>
+
+        <span>
+          Refer<span>Connect</span>
+        </span>
+      </a>
+
+
+      <!-- NAV LINKS -->
+
+      <nav class="navlinks" id="navlinks">
+
+        <a href="homepage.html">
+          Home
+        </a>
+
+        <a href="browse-referrals.html" class="active">
+          Browse Referrals
+        </a>
+
+        <a href="homepage.html#how-it-works">
+          How It Works
+        </a>
+
+        <a href="homepage.html#features">
+          Features
+        </a>
+
+        <a href="homepage.html#about">
+          About
+        </a>
+
+
+        <!-- MOBILE ACTIONS -->
+
+        <div class="mobile-actions">
+
+          <button
+            class="btn outline"
+            id="mobileLoginBtn">
+            Login
+          </button>
+
+          <button
+            class="btn primary"
+            id="mobileSignupBtn">
+            Sign Up
+          </button>
+
+        </div>
+
+      </nav>
+
+
+      <!-- DESKTOP ACTIONS -->
+
+      <div class="actions desktop-actions">
+
+        <button
+          class="btn outline"
+          id="loginBtn">
+          Login
+        </button>
+
+        <button
+          class="btn primary"
+          id="signupBtn">
+          Sign Up
+        </button>
+
+      </div>
+
+
+      <!-- MOBILE MENU BUTTON -->
+
+      <button
+        class="menu"
+        id="menuBtn"
+        aria-label="Open menu">
+
+        ☰
+
+      </button>
+
+    </div>
+
+  </header>
+
+
+
+  <!-- =========================
+       PAGE HERO
+  ========================== -->
+
+  <main>
+
+    <section class="browse-hero">
+
+      <div class="container">
+
+        <div class="browse-hero-content">
+
+          <div class="badge">
+
+            <span class="dot"></span>
+
+            FIND YOUR NEXT OPPORTUNITY
+
+          </div>
+
+
+          <h1>
+            Browse
+            <span>Referral Opportunities.</span>
+          </h1>
+
+
+          <p>
+            Discover genuine job and internship opportunities shared by
+            professionals working inside companies you want to join.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         SEARCH / FILTER SECTION
+    ========================== -->
+
+    <section class="browse-search">
+
+      <div class="container">
+
+        <div class="search-card">
+
+
+          <!-- SEARCH HEADER -->
+
+          <div class="search-heading">
+
+            <div>
+
+              <div class="label">
+                EXPLORE OPPORTUNITIES
+              </div>
+
+              <h2>
+                Find the right referral for you
+              </h2>
+
+              <p>
+                Filter opportunities based on location,
+                profession, and career level.
+              </p>
+
+            </div>
+
+
+            <button
+              class="clear-btn"
+              id="clearBtn">
+
+              Clear all
+
+            </button>
+
+          </div>
+
+
+
+          <!-- FILTERS -->
+
+          <div class="filters">
+
+
+            <!-- CITY -->
+
+            <div class="filter-field">
+
+              <label for="city">
+                City
+              </label>
+
+              <div class="select-wrapper">
+
+                <span class="filter-icon">
+                  ⌖
+                </span>
+
+                <select id="city">
+
+                  <option value="">
+                    All Cities
+                  </option>
+
+                  <option value="Bangalore">
+                    Bangalore
+                  </option>
+
+                  <option value="Hyderabad">
+                    Hyderabad
+                  </option>
+
+                  <option value="Mumbai">
+                    Mumbai
+                  </option>
+
+                  <option value="Delhi">
+                    Delhi
+                  </option>
+
+                  <option value="Pune">
+                    Pune
+                  </option>
+
+                  <option value="Chennai">
+                    Chennai
+                  </option>
+
+                  <option value="Kolkata">
+                    Kolkata
+                  </option>
+
+                  <option value="Remote">
+                    Remote
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- PROFESSION -->
+
+            <div class="filter-field">
+
+              <label for="profession">
+                Profession Category
+              </label>
+
+              <div class="select-wrapper">
+
+                <span class="filter-icon">
+                  ▦
+                </span>
+
+                <select id="profession">
+
+                  <option value="">
+                    All Professions
+                  </option>
+
+                  <option value="IT / Software">
+                    IT / Software
+                  </option>
+
+                  <option value="Human Resources">
+                    Human Resources
+                  </option>
+
+                  <option value="Finance">
+                    Finance
+                  </option>
+
+                  <option value="Marketing">
+                    Marketing
+                  </option>
+
+                  <option value="Sales">
+                    Sales
+                  </option>
+
+                  <option value="Design">
+                    Design
+                  </option>
+
+                  <option value="Operations">
+                    Operations
+                  </option>
+
+                  <option value="Other">
+                    Other
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- OPPORTUNITY -->
+
+            <div class="filter-field">
+
+              <label for="opportunity">
+
+                Opportunity Category
+
+              </label>
+
+              <div class="select-wrapper">
+
+                <span class="filter-icon">
+                  ◆
+                </span>
+
+                <select id="opportunity">
+
+                  <option value="">
+                    All Opportunities
+                  </option>
+
+                  <option value="Internship">
+                    Internship
+                  </option>
+
+                  <option value="Entry Level">
+                    Entry Level
+                  </option>
+
+                  <option value="Mid Level">
+                    Mid Level
+                  </option>
+
+                  <option value="Senior Level">
+                    Senior Level
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- SEARCH BUTTON -->
+
+            <button
+              class="search-btn"
+              id="searchBtn">
+
+              <span>⌕</span>
+
+              Search Referrals
+
+            </button>
+
+          </div>
+
+
+
+          <!-- SELECTED FILTER CHIPS -->
+
+          <div
+            class="selected-filters"
+            id="selectedFilters">
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         EMPTY STATE
+    ========================== -->
+
+    <section class="empty-section">
+
+      <div class="container">
+
+        <div class="empty-card">
+
+
+          <div class="empty-icon">
+
+            <span>
+              ↗
+            </span>
+
+          </div>
+
+
+          <h2>
+            Referral opportunities will appear here
+          </h2>
+
+
+          <p>
+            Employees haven't posted any referral opportunities yet.
+            Once referrals are available, you’ll be able to browse
+            them using the filters above.
+          </p>
+
+
+          <div class="empty-points">
+
+            <div>
+
+              <span>✓</span>
+
+              Verified employee referrals
+
+            </div>
+
+
+            <div>
+
+              <span>✓</span>
+
+              Opportunities based on your preferences
+
+            </div>
+
+
+            <div>
+
+              <span>✓</span>
+
+              Simple and transparent application process
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer id="about">
+
+    <div class="container">
+
+      <div class="footergrid">
+
+
+        <!-- BRAND -->
+
+        <div class="footerbrand">
+
+          <a href="homepage.html" class="logo">
+
+            <span class="logo-mark">
+              R
+            </span>
+
+            <span>
+              Refer<span>Connect</span>
+            </span>
+
+          </a>
+
+
+          <p>
+            Connecting candidates with employee referral
+            opportunities from professionals inside companies.
+          </p>
+
+        </div>
+
+
+
+        <!-- PRODUCT -->
+
+        <div class="footercol">
+
+          <h4>
+            Product
+          </h4>
+
+          <a href="browse-referrals.html">
+            Browse Referrals
+          </a>
+
+          <a href="#">
+            My Applications
+          </a>
+
+          <a href="#">
+            Create Referral
+          </a>
+
+        </div>
+
+
+
+        <!-- COMPANY -->
+
+        <div class="footercol">
+
+          <h4>
+            Company
+          </h4>
+
+          <a href="homepage.html#about">
+            About
+          </a>
+
+          <a href="homepage.html#how-it-works">
+            How It Works
+          </a>
+
+          <a href="homepage.html#features">
+            Features
+          </a>
+
+        </div>
+
+
+
+        <!-- SUPPORT -->
+
+        <div class="footercol">
+
+          <h4>
+            Support
+          </h4>
+
+          <a href="#">
+            Help Center
+          </a>
+
+          <a href="#">
+            Report an Issue
+          </a>
+
+          <a href="#">
+            Contact Us
+          </a>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="bottom">
+
+        <span>
+          © 2026 ReferConnect. All rights reserved.
+        </span>
+
+        <span>
+          Built to make professional referrals simpler.
+        </span>
+
+      </div>
+
+    </div>
+
+  </footer>
+
+
+  <script src="referal.js"></script>
+
+</body>
+
+</html>
