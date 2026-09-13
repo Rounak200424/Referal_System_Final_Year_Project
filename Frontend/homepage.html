@@ -22,11 +22,23 @@
 <div class="actions mobile-actions">
 <button class="btn outline login">Login</button>
 <button class="btn primary signup">Sign Up</button>
+<div class="user-menu hidden" data-user-menu>
+<button class="btn outline user-menu-toggle" type="button" data-user-toggle aria-expanded="false"></button>
+<div class="user-dropdown" data-user-dropdown>
+<a href="#" data-placeholder>View Profile</a><a href="#" data-placeholder>My Applications</a><a href="#" data-placeholder>Create Referral</a><a href="#" data-placeholder>My Referrals</a><a href="#" data-placeholder>Settings</a><a href="#" data-placeholder>Report an Issue</a><button type="button" data-logout>Logout</button>
+</div>
+</div>
 </div>
 </nav>
 <div class="actions desktop-actions">
 <button class="btn outline login">Login</button>
 <button class="btn primary signup">Sign Up</button>
+<div class="user-menu hidden" data-user-menu>
+<button class="btn outline user-menu-toggle" type="button" data-user-toggle aria-expanded="false"></button>
+<div class="user-dropdown" data-user-dropdown>
+<a href="#" data-placeholder>View Profile</a><a href="#" data-placeholder>My Applications</a><a href="#" data-placeholder>Create Referral</a><a href="#" data-placeholder>My Referrals</a><a href="#" data-placeholder>Settings</a><a href="#" data-placeholder>Report an Issue</a><button type="button" data-logout>Logout</button>
+</div>
+</div>
 </div>
 </div>
 </header>
@@ -130,19 +142,21 @@
 <div class="authhead"><div class="authlogo">R</div><span class="label">WELCOME TO REFERCONNECT</span><h2 id="title">Welcome back</h2><p id="subtitle">Login to continue to your account.</p></div>
 
 <form class="form" id="loginForm">
-<label>Email</label><input type="email" placeholder="you@example.com" required>
-<label>Password</label><input type="password" placeholder="Enter your password" required>
-<div class="row"><span>☐ Remember me</span><a href="#">Forgot password?</a></div>
+<p class="auth-message" id="loginMessage" role="status"></p>
+<label for="loginEmail">Email</label><input id="loginEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+<label for="loginPassword">Password</label><input id="loginPassword" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+<div class="row"><span>☐ Remember me</span><a href="#" id="forgotPassword">Forgot password?</a></div>
 <button class="btn primary" type="submit">Login</button>
 <p class="switch">Don't have an account? <button type="button" id="toSignup">Sign Up</button></p>
 </form>
 
 <form class="form hidden" id="signupForm">
-<label>Full Name</label><input type="text" placeholder="Your full name" required>
-<label>Email</label><input type="email" placeholder="you@example.com" required>
-<label>Password</label><input type="password" placeholder="Create a password" minlength="6" required>
-<label>Professional Status</label>
-<select required><option value="">Select an option</option><option>Student</option><option>Working Professional</option><option>Looking for Opportunities</option></select>
+<p class="auth-message" id="signupMessage" role="status"></p>
+<label for="signupName">Full Name</label><input id="signupName" name="name" type="text" placeholder="Your full name" autocomplete="name" required>
+<label for="signupEmail">Email</label><input id="signupEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+<label for="signupPassword">Password</label><input id="signupPassword" name="password" type="password" placeholder="Create a password" minlength="6" autocomplete="new-password" required>
+<label for="professionalStatus">Professional Status</label>
+<select id="professionalStatus" name="professionalStatus" required><option value="">Select an option</option><option value="STUDENT">Student</option><option value="WORKING_PROFESSIONAL">Working Professional</option><option value="LOOKING_FOR_OPPORTUNITY">Looking for Opportunities</option></select>
 <div class="note">One account can apply for referrals and, after verification, create referral opportunities.</div>
 <button class="btn primary" type="submit">Create Account</button>
 <p class="switch">Already have an account? <button type="button" id="toLogin">Login</button></p>
@@ -150,7 +164,8 @@
 </div>
 </div>
 
-<script src="homepage.js"></script>
+<script src="auth.js?v=auth1"></script>
+<script src="homepage.js?v=auth1"></script>
 
 </body>
 </html>
