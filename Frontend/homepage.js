@@ -15,13 +15,90 @@ const subtitle = document.getElementById("subtitle");
 const nav = document.getElementById("navlinks");
 const loginMessage = document.getElementById("loginMessage");
 const signupMessage = document.getElementById("signupMessage");
+const referralOverlay = document.getElementById("referralOverlay");
+const referralForm = document.getElementById("referralForm");
+const referralMessage = document.getElementById("referralMessage");
 
 function getRequestErrorMessage(error, fallbackMessage) {
   if (error instanceof TypeError) {
     return "Cannot connect to the authentication server. Make sure the backend is running at http://localhost:5000.";
   }
-
   return error.message || fallbackMessage;
+}
+
+function openCreateReferralModal() {
+  referralOverlay.classList.add("active");
+  referralOverlay.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+  closeUserMenus();
+  referralForm.querySelector("input, select, textarea").focus();
+}
+
+function closeCreateReferralModal() {
+  referralOverlay.classList.remove("active");
+  referralOverlay.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+function setReferralFieldError(field, message) {
+  const wrapper = field.closest(".referral-field");
+  const error = wrapper.querySelector(".field-error");
+  wrapper.classList.toggle("invalid", Boolean(message));
+  error.textContent = message;
+  field.setAttribute("aria-invalid", String(Boolean(message)));
+}
+
+function validateReferralForm() {
+  const fields = {
+    company: referralForm.elements.companyName,
+    role: referralForm.elements.role,
+    location: referralForm.elements.location,
+    link: referralForm.elements.importantLink,
+    professionalCategory: referralForm.elements.professionalCategory,
+    opportunityCategory: referralForm.elements.opportunityCategory,
+    description: referralForm.elements.description,
+    applicantLimit: referralForm.elements.applicantLimit
+  };
+  const errors = {};
+
+  Object.values(fields).forEach((field) => setReferralFieldError(field, ""));
+  if (!fields.company.value.trim()) errors.company = "Company name is required.";
+  if (!fields.role.value.trim()) errors.role = "Role is required.";
+  if (!fields.location.value.trim()) errors.location = "Job location is required.";
+  if (!fields.link.value.trim()) {
+    errors.link = "Important link is required.";
+  } else {
+    try {
+      const url = new URL(fields.link.value.trim());
+      if (!["http:", "https:"].includes(url.protocol)) errors.link = "Enter a valid URL starting with http:// or https://.";
+    } catch (error) {
+      errors.link = "Enter a valid URL.";
+    }
+  }
+  if (!fields.professionalCategory.value) errors.professionalCategory = "Select a professional category.";
+  if (!fields.opportunityCategory.value) errors.opportunityCategory = "Select an opportunity category.";
+  if (!fields.description.value.trim()) errors.description = "Job description is required.";
+  if (!fields.applicantLimit.value || Number(fields.applicantLimit.value) <= 0 || !Number.isInteger(Number(fields.applicantLimit.value))) {
+    errors.applicantLimit = "Enter a whole number greater than 0.";
+  }
+
+  Object.entries(errors).forEach(([name, message]) => setReferralFieldError(fields[name], message));
+  return Object.keys(errors).length === 0;
+}
+
+function handleReferralFormSubmit(event) {
+  event.preventDefault();
+  referralMessage.textContent = "";
+  referralMessage.classList.remove("success");
+
+  if (!validateReferralForm()) {
+    const firstInvalid = referralForm.querySelector("[aria-invalid='true']");
+    if (firstInvalid) firstInvalid.focus();
+    return;
+  }
+
+  referralMessage.textContent = "Referral form is ready to be submitted.";
+  referralMessage.classList.add("success");
 }
 
 function setMessage(element, message, isSuccess = false) {
@@ -40,6 +117,13 @@ function setFormLoading(form, isLoading) {
 function renderAuthState(user) {
   document.querySelectorAll(".login, .signup").forEach((element) => {
     element.classList.toggle("hidden", Boolean(user));
+  });
+
+  document.querySelectorAll("[data-create-referral]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      openCreateReferralModal();
+    });
   });
 
   document.querySelectorAll("[data-user-menu]").forEach((menu) => {
@@ -109,6 +193,7 @@ overlay.addEventListener("click", (event) => {
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && overlay.classList.contains("active")) closeAuth();
+  if (event.key === "Escape" && referralOverlay.classList.contains("active")) closeCreateReferralModal();
 });
 document.getElementById("menu").addEventListener("click", () => nav.classList.toggle("active"));
 nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => nav.classList.remove("active")));
@@ -139,6 +224,13 @@ document.querySelectorAll("[data-logout]").forEach((button) => {
 });
 
 document.addEventListener("click", closeUserMenus);
+
+document.getElementById("closeReferral").addEventListener("click", closeCreateReferralModal);
+document.getElementById("cancelReferral").addEventListener("click", closeCreateReferralModal);
+referralOverlay.addEventListener("click", (event) => {
+  if (event.target === referralOverlay) closeCreateReferralModal();
+});
+referralForm.addEventListener("submit", handleReferralFormSubmit);
 
 document.getElementById("forgotPassword").addEventListener("click", (event) => {
   event.preventDefault();

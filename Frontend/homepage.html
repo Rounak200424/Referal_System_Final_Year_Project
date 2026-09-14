@@ -25,7 +25,7 @@
 <div class="user-menu hidden" data-user-menu>
 <button class="btn outline user-menu-toggle" type="button" data-user-toggle aria-expanded="false"></button>
 <div class="user-dropdown" data-user-dropdown>
-<a href="#" data-placeholder>View Profile</a><a href="#" data-placeholder>My Applications</a><a href="#" data-placeholder>Create Referral</a><a href="#" data-placeholder>My Referrals</a><a href="#" data-placeholder>Settings</a><a href="#" data-placeholder>Report an Issue</a><button type="button" data-logout>Logout</button>
+<a href="#" data-placeholder>View Profile</a><a href="#" data-placeholder>My Applications</a><a href="#" data-create-referral>Create Referral</a><a href="#" data-placeholder>My Referrals</a><a href="#" data-placeholder>Settings</a><a href="#" data-placeholder>Report an Issue</a><button type="button" data-logout>Logout</button>
 </div>
 </div>
 </div>
@@ -36,7 +36,7 @@
 <div class="user-menu hidden" data-user-menu>
 <button class="btn outline user-menu-toggle" type="button" data-user-toggle aria-expanded="false"></button>
 <div class="user-dropdown" data-user-dropdown>
-<a href="#" data-placeholder>View Profile</a><a href="#" data-placeholder>My Applications</a><a href="#" data-placeholder>Create Referral</a><a href="#" data-placeholder>My Referrals</a><a href="#" data-placeholder>Settings</a><a href="#" data-placeholder>Report an Issue</a><button type="button" data-logout>Logout</button>
+<a href="#" data-placeholder>View Profile</a><a href="#" data-placeholder>My Applications</a><a href="#" data-create-referral>Create Referral</a><a href="#" data-placeholder>My Referrals</a><a href="#" data-placeholder>Settings</a><a href="#" data-placeholder>Report an Issue</a><button type="button" data-logout>Logout</button>
 </div>
 </div>
 </div>
@@ -160,6 +160,25 @@
 <div class="note">One account can apply for referrals and, after verification, create referral opportunities.</div>
 <button class="btn primary" type="submit">Create Account</button>
 <p class="switch">Already have an account? <button type="button" id="toLogin">Login</button></p>
+</form>
+</div>
+</div>
+
+<div class="overlay referral-overlay" id="referralOverlay" aria-hidden="true">
+<div class="modal referral-modal" role="dialog" aria-modal="true" aria-labelledby="referralTitle">
+<button class="close" id="closeReferral" type="button" aria-label="Close create referral form">×</button>
+<div class="authhead"><div class="authlogo">R</div><span class="label">SHARE AN OPPORTUNITY</span><h2 id="referralTitle">Create Referral</h2><p>Share a referral opportunity with the ReferConnect community.</p></div>
+<form class="form referral-form" id="referralForm" novalidate>
+<p class="auth-message" id="referralMessage" role="status" aria-live="polite"></p>
+<div class="referral-field"><label for="referralCompany">Company Name <span aria-hidden="true">*</span></label><input id="referralCompany" name="companyName" type="text" placeholder="Enter company name" required aria-describedby="referralCompanyError"><span class="field-error" id="referralCompanyError"></span></div>
+<div class="referral-field"><label for="referralRole">Role Hiring For <span aria-hidden="true">*</span></label><input id="referralRole" name="role" type="text" placeholder="e.g. Backend Developer" required aria-describedby="referralRoleError"><span class="field-error" id="referralRoleError"></span></div>
+<div class="referral-field"><label for="referralLocation">Job Location <span aria-hidden="true">*</span></label><input id="referralLocation" name="location" type="text" placeholder="e.g. Bangalore / Remote" required aria-describedby="referralLocationError"><span class="field-error" id="referralLocationError"></span></div>
+<div class="referral-field"><label for="referralLink">Important Link <span aria-hidden="true">*</span></label><input id="referralLink" name="importantLink" type="url" placeholder="Paste Google Form, LinkedIn or application link" required aria-describedby="referralLinkHelp referralLinkError"><span class="field-help" id="referralLinkHelp">Add the application form, LinkedIn job post, or other important opportunity link.</span><span class="field-error" id="referralLinkError"></span></div>
+<div class="referral-field"><label for="referralProfessionalCategory">Professional Category <span aria-hidden="true">*</span></label><select id="referralProfessionalCategory" name="professionalCategory" required aria-describedby="referralProfessionalCategoryError"><option value="">Select Professional Category</option><option value="IT / Software">IT / Software</option><option value="Finance">Finance</option><option value="HR">HR</option><option value="Marketing">Marketing</option><option value="Sales">Sales</option><option value="Operations">Operations</option><option value="Design">Design</option><option value="Other">Other</option></select><span class="field-error" id="referralProfessionalCategoryError"></span></div>
+<div class="referral-field"><label for="referralOpportunityCategory">Opportunity Category <span aria-hidden="true">*</span></label><select id="referralOpportunityCategory" name="opportunityCategory" required aria-describedby="referralOpportunityCategoryError"><option value="">Select Opportunity Category</option><option value="Internship">Internship</option><option value="Entry Level">Entry Level</option><option value="Mid Level">Mid Level</option><option value="Senior Level">Senior Level</option></select><span class="field-error" id="referralOpportunityCategoryError"></span></div>
+<div class="referral-field"><label for="referralDescription">Job Description <span aria-hidden="true">*</span></label><textarea id="referralDescription" name="description" rows="5" placeholder="Describe the role, responsibilities, requirements, skills, etc." required aria-describedby="referralDescriptionError"></textarea><span class="field-error" id="referralDescriptionError"></span></div>
+<div class="referral-field"><label for="referralApplicantLimit">Number of Applicants Allowed <span aria-hidden="true">*</span></label><input id="referralApplicantLimit" name="applicantLimit" type="number" min="1" step="1" placeholder="e.g. 10" required aria-describedby="referralApplicantLimitHelp referralApplicantLimitError"><span class="field-help" id="referralApplicantLimitHelp">Set the maximum number of candidates who can apply for this referral.</span><span class="field-error" id="referralApplicantLimitError"></span></div>
+<div class="referral-actions"><button class="btn outline" id="cancelReferral" type="button">Cancel</button><button class="btn primary" type="submit">Create Referral</button></div>
 </form>
 </div>
 </div>
