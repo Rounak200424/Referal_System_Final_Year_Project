@@ -25,7 +25,7 @@
 <div class="user-menu hidden" data-user-menu>
 <button class="btn outline user-menu-toggle" type="button" data-user-toggle aria-expanded="false"></button>
 <div class="user-dropdown" data-user-dropdown>
-<a href="#" data-placeholder>View Profile</a><a href="#" data-placeholder>My Applications</a><a href="#" data-create-referral>Create Referral</a><a href="#" data-placeholder>My Referrals</a><a href="#" data-placeholder>Settings</a><a href="#" data-placeholder>Report an Issue</a><button type="button" data-logout>Logout</button>
+<a href="#" data-view-profile>View Profile</a><a href="#" data-placeholder>My Applications</a><a href="#" data-create-referral>Create Referral</a><a href="#" data-placeholder>My Referrals</a><a href="#" data-placeholder>Settings</a><a href="#" data-placeholder>Report an Issue</a><button type="button" data-logout>Logout</button>
 </div>
 </div>
 </div>
@@ -36,7 +36,7 @@
 <div class="user-menu hidden" data-user-menu>
 <button class="btn outline user-menu-toggle" type="button" data-user-toggle aria-expanded="false"></button>
 <div class="user-dropdown" data-user-dropdown>
-<a href="#" data-placeholder>View Profile</a><a href="#" data-placeholder>My Applications</a><a href="#" data-create-referral>Create Referral</a><a href="#" data-placeholder>My Referrals</a><a href="#" data-placeholder>Settings</a><a href="#" data-placeholder>Report an Issue</a><button type="button" data-logout>Logout</button>
+<a href="#" data-view-profile>View Profile</a><a href="#" data-placeholder>My Applications</a><a href="#" data-create-referral>Create Referral</a><a href="#" data-placeholder>My Referrals</a><a href="#" data-placeholder>Settings</a><a href="#" data-placeholder>Report an Issue</a><button type="button" data-logout>Logout</button>
 </div>
 </div>
 </div>
@@ -183,8 +183,30 @@
 </div>
 </div>
 
+<div class="overlay profile-overlay" id="profileOverlay" aria-hidden="true">
+<div class="modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+<button class="close" id="closeProfile" type="button" aria-label="Close profile form">×</button>
+<div class="authhead"><div class="authlogo">R</div><span class="label">YOUR PROFESSIONAL PROFILE</span><h2 id="profileTitle">Profile</h2><p>Keep your professional information ready for meaningful connections.</p></div>
+<form class="form profile-form" id="profileForm" novalidate>
+<p class="auth-message" id="profileMessage" role="status" aria-live="polite"></p>
+<div class="profile-picture-section">
+<div class="profile-picture" id="profilePicturePreview" aria-label="Profile picture placeholder">R</div>
+<div class="profile-picture-copy"><strong>Profile Picture</strong><span>JPG, JPEG or PNG</span><div class="profile-picture-actions"><button class="btn outline" id="profilePictureButton" type="button">Add Picture</button><button class="profile-remove-button hidden" id="removeProfilePicture" type="button">Remove Picture</button></div></div>
+<input id="profilePictureInput" type="file" accept="image/jpeg,image/png" class="hidden">
+</div>
+<div class="profile-field"><label for="profileName">Name</label><input id="profileName" name="name" type="text" readonly aria-readonly="true"></div>
+<div class="profile-field"><label for="profileDesignation">Current Designation <span aria-hidden="true">*</span></label><input id="profileDesignation" name="designation" type="text" placeholder="e.g. Software Engineer" required aria-describedby="profileDesignationError"><span class="field-error" id="profileDesignationError"></span></div>
+<div class="profile-field"><label for="profileCompany">Current Company <span aria-hidden="true">*</span></label><input id="profileCompany" name="company" type="text" placeholder="e.g. Google" required aria-describedby="profileCompanyError"><span class="field-error" id="profileCompanyError"></span></div>
+<div class="profile-field"><label for="profileLinkedIn">LinkedIn Profile Link</label><input id="profileLinkedIn" name="linkedIn" type="url" placeholder="https://linkedin.com/in/..." aria-describedby="profileLinkedInError"><span class="field-error" id="profileLinkedInError"></span></div>
+<div class="profile-field"><label for="profileSocial">Social Media Profile Link</label><input id="profileSocial" name="social" type="url" placeholder="https://..." aria-describedby="profileSocialError"><span class="field-error" id="profileSocialError"></span></div>
+<div class="profile-actions"><button class="btn outline" id="cancelProfile" type="button">Cancel</button><button class="btn primary" id="profileSubmit" type="submit">Create Profile</button></div>
+</form>
+</div>
+</div>
+
 <script src="auth.js?v=auth1"></script>
 <script src="homepage.js?v=auth1"></script>
+<script src="profile.js?v=profile1"></script>
 
 </body>
 </html>

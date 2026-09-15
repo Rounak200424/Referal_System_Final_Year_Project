@@ -1,5 +1,6 @@
 const {
   API_BASE_URL,
+  getAuthToken,
   getStoredUser,
   saveAuthSession,
   clearAuthSession,
@@ -18,6 +19,7 @@ const signupMessage = document.getElementById("signupMessage");
 const referralOverlay = document.getElementById("referralOverlay");
 const referralForm = document.getElementById("referralForm");
 const referralMessage = document.getElementById("referralMessage");
+let referralSubmitting = false;
 
 function getRequestErrorMessage(error, fallbackMessage) {
   if (error instanceof TypeError) {
@@ -86,8 +88,10 @@ function validateReferralForm() {
   return Object.keys(errors).length === 0;
 }
 
-function handleReferralFormSubmit(event) {
+async function handleReferralFormSubmit(event) {
   event.preventDefault();
+  if (referralSubmitting) return;
+
   referralMessage.textContent = "";
   referralMessage.classList.remove("success");
 
@@ -97,8 +101,59 @@ function handleReferralFormSubmit(event) {
     return;
   }
 
-  referralMessage.textContent = "Referral form is ready to be submitted.";
-  referralMessage.classList.add("success");
+  const token = getAuthToken();
+  if (!token) {
+    referralMessage.textContent = "Please login before creating a referral.";
+    return;
+  }
+
+  const submitButton = referralForm.querySelector('button[type="submit"]');
+  referralSubmitting = true;
+  submitButton.disabled = true;
+  submitButton.textContent = "Creating...";
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/referrals`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({
+        companyName: referralForm.elements.companyName.value.trim(),
+        roleHiringFor: referralForm.elements.role.value.trim(),
+        jobLocation: referralForm.elements.location.value.trim(),
+        importantLink: referralForm.elements.importantLink.value.trim(),
+        professionalCategory: referralForm.elements.professionalCategory.value,
+        opportunityCategory: referralForm.elements.opportunityCategory.value,
+        jobDescription: referralForm.elements.description.value.trim(),
+        applicantLimit: Number(referralForm.elements.applicantLimit.value)
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(await getApiError(response, "Unable to create referral. Please try again."));
+    }
+
+    referralMessage.textContent = "Referral created successfully.";
+    referralMessage.classList.add("success");
+    window.setTimeout(() => {
+      referralForm.reset();
+      referralForm.querySelectorAll(".referral-field").forEach((field) => field.classList.remove("invalid"));
+      referralForm.querySelectorAll(".field-error").forEach((error) => {
+        error.textContent = "";
+      });
+      closeCreateReferralModal();
+    }, 900);
+  } catch (error) {
+    referralMessage.textContent = error instanceof TypeError
+      ? "Cannot connect to the referral service. Please make sure the backend is running."
+      : error.message || "Unable to create referral. Please try again.";
+  } finally {
+    referralSubmitting = false;
+    submitButton.disabled = false;
+    submitButton.textContent = "Create Referral";
+  }
 }
 
 function setMessage(element, message, isSuccess = false) {
@@ -119,14 +174,7 @@ function renderAuthState(user) {
     element.classList.toggle("hidden", Boolean(user));
   });
 
-  document.querySelectorAll("[data-create-referral]").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      openCreateReferralModal();
-    });
-  });
-
-  document.querySelectorAll("[data-user-menu]").forEach((menu) => {
+    document.querySelectorAll("[data-user-menu]").forEach((menu) => {
     const toggle = menu.querySelector("[data-user-toggle]");
     menu.classList.toggle("hidden", !user);
     menu.classList.remove("open");
@@ -224,6 +272,13 @@ document.querySelectorAll("[data-logout]").forEach((button) => {
 });
 
 document.addEventListener("click", closeUserMenus);
+
+document.querySelectorAll("[data-create-referral]").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    openCreateReferralModal();
+  });
+});
 
 document.getElementById("closeReferral").addEventListener("click", closeCreateReferralModal);
 document.getElementById("cancelReferral").addEventListener("click", closeCreateReferralModal);
