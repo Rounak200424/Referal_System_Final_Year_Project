@@ -32,27 +32,6 @@ function clearAuthSession() {
   localStorage.removeItem(AUTH_USER_KEY);
 }
 
-function getProfileState(user) {
-  const userKey = user && (user.id || user.email);
-  if (!userKey) return null;
-
-  const storedProfile = localStorage.getItem(`referconnect_profile_${userKey}`);
-  if (!storedProfile) return null;
-
-  try {
-    return JSON.parse(storedProfile);
-  } catch (error) {
-    localStorage.removeItem(`referconnect_profile_${userKey}`);
-    return null;
-  }
-}
-
-function saveProfileState(user, profile) {
-  const userKey = user && (user.id || user.email);
-  if (!userKey) return;
-  localStorage.setItem(`referconnect_profile_${userKey}`, JSON.stringify(profile));
-}
-
 async function getCurrentUser() {
   const token = getAuthToken();
 
@@ -92,8 +71,6 @@ window.ReferConnectAuth = {
   getStoredUser,
   saveAuthSession,
   clearAuthSession,
-  getProfileState,
-  saveProfileState,
   getCurrentUser,
   getApiError
 };

@@ -1,8 +1,10 @@
 (() => {
   const {
+    API_BASE_URL,
+    getAuthToken,
     getStoredUser,
-    saveProfileState,
-    getProfileState
+    clearAuthSession,
+    getApiError
   } = window.ReferConnectAuth;
 
   const profileOverlay = document.getElementById("profileOverlay");
@@ -14,6 +16,8 @@
   const removeProfilePictureButton = document.getElementById("removeProfilePicture");
   const profileSubmit = document.getElementById("profileSubmit");
   let selectedPicture = null;
+  let profileExists = false;
+  let profileSubmitting = false;
 
   function setProfileFieldError(field, message) {
     const wrapper = field.closest(".profile-field");
@@ -36,6 +40,7 @@
 
     [linkedIn, social].forEach((field) => {
       if (!field.value.trim()) return;
+
       try {
         const url = new URL(field.value.trim());
         if (!["http:", "https:"].includes(url.protocol)) {
@@ -52,12 +57,9 @@
     return Object.keys(errors).length === 0;
   }
 
-  function getProfileKey(user) {
-    return user && (user.id || user.email) ? `referconnect_profile_${user.id || user.email}` : null;
-  }
-
   function renderPicture(picture, user) {
     profilePicturePreview.innerHTML = "";
+
     if (picture) {
       const image = document.createElement("img");
       image.src = picture;
@@ -73,37 +75,99 @@
     removeProfilePictureButton.classList.add("hidden");
   }
 
-  function openProfileModal() {
+  function resetProfileFields() {
+    profileForm.reset();
+    profileForm.querySelectorAll(".profile-field").forEach((field) => field.classList.remove("invalid"));
+    profileForm.querySelectorAll(".field-error").forEach((error) => {
+      error.textContent = "";
+    });
+  }
+
+  function handleExpiredSession() {
+    clearAuthSession();
+    profileOverlay.classList.remove("active");
+    profileOverlay.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    window.dispatchEvent(new CustomEvent("referconnect:logout"));
+  }
+
+  async function loadProfile() {
+    const token = getAuthToken();
+
+    if (!token) {
+      profileMessage.textContent = "Please login to view your profile.";
+      return null;
+    }
+
+    profileMessage.textContent = "Loading profile...";
+    profileMessage.classList.remove("success");
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/profile`, {
+        headers: {
+          Authorization: "Bearer " + token
+        }
+      });
+
+      if (response.status === 401) {
+        handleExpiredSession();
+        return null;
+      }
+
+      if (response.status === 404) {
+        profileExists = false;
+        profileMessage.textContent = "";
+        return null;
+      }
+
+      if (!response.ok) {
+        throw new Error(await getApiError(response, "Unable to load your profile."));
+      }
+
+      const data = await response.json();
+      profileExists = true;
+      profileMessage.textContent = "";
+      return data.profile;
+    } catch (error) {
+      profileMessage.textContent = error instanceof TypeError
+        ? "Cannot connect to the profile service. Please make sure the backend is running."
+        : error.message || "Unable to load your profile.";
+      return null;
+    }
+  }
+
+  async function openProfileModal() {
     const user = getStoredUser();
     if (!user) {
       profileMessage.textContent = "Please login to view your profile.";
       return;
     }
 
-    const savedProfile = getProfileState(user) || {};
-    profileForm.reset();
+    resetProfileFields();
     profileForm.elements.name.value = user.name || "";
-    profileForm.elements.designation.value = savedProfile.designation || "";
-    profileForm.elements.company.value = savedProfile.company || "";
-    profileForm.elements.linkedIn.value = savedProfile.linkedIn || "";
-    profileForm.elements.social.value = savedProfile.social || "";
-    profileMessage.textContent = "";
-    profileMessage.classList.remove("success");
-    profileForm.querySelectorAll(".profile-field").forEach((field) => field.classList.remove("invalid"));
-    profileForm.querySelectorAll(".field-error").forEach((error) => {
-      error.textContent = "";
-    });
-    selectedPicture = savedProfile.picture || null;
-    renderPicture(selectedPicture, user);
-    profileSubmit.textContent = savedProfile.exists ? "Update Profile" : "Create Profile";
+    selectedPicture = null;
+    renderPicture(null, user);
+    profileExists = false;
+    profileSubmit.textContent = "Create Profile";
     profileOverlay.classList.add("active");
     profileOverlay.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     closeUserMenus();
     profileForm.elements.designation.focus();
+
+    const profile = await loadProfile();
+    if (!profile || !profileOverlay.classList.contains("active")) return;
+
+    profileForm.elements.name.value = profile.name || user.name || "";
+    profileForm.elements.designation.value = profile.designation || "";
+    profileForm.elements.company.value = profile.company || "";
+    profileForm.elements.linkedIn.value = profile.linkedinUrl || "";
+    profileForm.elements.social.value = profile.socialMediaUrl || "";
+    profileSubmit.textContent = "Update Profile";
   }
 
   function closeProfileModal() {
+    if (profileSubmitting) return;
     profileOverlay.classList.remove("active");
     profileOverlay.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
@@ -114,6 +178,72 @@
       menu.classList.remove("open");
       menu.querySelector("[data-user-toggle]").setAttribute("aria-expanded", "false");
     });
+  }
+
+  async function handleProfileSubmit(event) {
+    event.preventDefault();
+    if (profileSubmitting || !validateProfileForm()) {
+      if (!profileSubmitting) {
+        const firstInvalid = profileForm.querySelector("[aria-invalid='true']");
+        if (firstInvalid) firstInvalid.focus();
+      }
+      return;
+    }
+
+    const token = getAuthToken();
+    if (!token) {
+      handleExpiredSession();
+      return;
+    }
+
+    profileSubmitting = true;
+    profileSubmit.disabled = true;
+    profileSubmit.textContent = profileExists ? "Updating..." : "Creating...";
+    profileMessage.textContent = "";
+
+    const payload = {
+      designation: profileForm.elements.designation.value.trim(),
+      company: profileForm.elements.company.value.trim(),
+      linkedinUrl: profileForm.elements.linkedIn.value.trim(),
+      socialMediaUrl: profileForm.elements.social.value.trim()
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/profile`, {
+        method: profileExists ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.status === 401) {
+        handleExpiredSession();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(await getApiError(response, "Unable to save your profile."));
+      }
+
+      const data = await response.json();
+      profileExists = true;
+      profileSubmit.textContent = "Update Profile";
+      profileMessage.textContent = data.message || "Profile saved successfully.";
+      profileMessage.classList.add("success");
+    } catch (error) {
+      profileMessage.textContent = error instanceof TypeError
+        ? "Cannot connect to the profile service. Please make sure the backend is running."
+        : error.message || "Unable to save your profile.";
+      profileMessage.classList.remove("success");
+    } finally {
+      profileSubmitting = false;
+      profileSubmit.disabled = false;
+      if (profileOverlay.classList.contains("active")) {
+        profileSubmit.textContent = profileExists ? "Update Profile" : "Create Profile";
+      }
+    }
   }
 
   document.querySelectorAll("[data-view-profile]").forEach((link) => {
@@ -127,6 +257,7 @@
   profilePictureInput.addEventListener("change", () => {
     const file = profilePictureInput.files[0];
     if (!file) return;
+
     if (!["image/jpeg", "image/png"].includes(file.type)) {
       profileMessage.textContent = "Please select a JPG, JPEG or PNG image.";
       profilePictureInput.value = "";
@@ -137,7 +268,7 @@
     reader.addEventListener("load", () => {
       selectedPicture = reader.result;
       renderPicture(selectedPicture, getStoredUser());
-      profileMessage.textContent = "";
+      profileMessage.textContent = "Picture preview updated. Picture storage will be available soon.";
     });
     reader.readAsDataURL(file);
   });
@@ -148,30 +279,7 @@
     renderPicture(null, getStoredUser());
   });
 
-  profileForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    profileMessage.textContent = "";
-    profileMessage.classList.remove("success");
-    if (!validateProfileForm()) {
-      const firstInvalid = profileForm.querySelector("[aria-invalid='true']");
-      if (firstInvalid) firstInvalid.focus();
-      return;
-    }
-
-    const user = getStoredUser();
-    saveProfileState(user, {
-      exists: true,
-      designation: profileForm.elements.designation.value.trim(),
-      company: profileForm.elements.company.value.trim(),
-      linkedIn: profileForm.elements.linkedIn.value.trim(),
-      social: profileForm.elements.social.value.trim(),
-      picture: selectedPicture
-    });
-    profileMessage.textContent = "Profile saved successfully.";
-    profileMessage.classList.add("success");
-    profileSubmit.textContent = "Update Profile";
-  });
-
+  profileForm.addEventListener("submit", handleProfileSubmit);
   document.getElementById("closeProfile").addEventListener("click", closeProfileModal);
   document.getElementById("cancelProfile").addEventListener("click", closeProfileModal);
   profileOverlay.addEventListener("click", (event) => {

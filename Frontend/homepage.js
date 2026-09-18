@@ -269,6 +269,11 @@ document.querySelectorAll("[data-logout]").forEach((button) => {
     renderAuthState(null);
     closeUserMenus();
   });
+
+  window.addEventListener("referconnect:logout", () => {
+    renderAuthState(null);
+    closeUserMenus();
+  });
 });
 
 document.addEventListener("click", closeUserMenus);
