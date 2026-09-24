@@ -435,7 +435,11 @@
 
       <div class="container">
 
-        <div class="empty-card">
+        <div class="referral-state" id="referralState" role="status" aria-live="polite"></div>
+
+        <div class="referral-cards" id="referralCards"></div>
+
+        <div class="empty-card" id="emptyCard">
 
 
           <div class="empty-icon">
@@ -494,6 +498,27 @@
       </div>
 
     </section>
+
+  <div class="browse-overlay" id="referrerOverlay" aria-hidden="true">
+    <div class="browse-modal referrer-modal" role="dialog" aria-modal="true" aria-labelledby="referrerTitle">
+      <button class="browse-modal-close" id="closeReferrer" type="button" aria-label="Close referrer profile">×</button>
+      <div class="referrer-avatar" id="referrerAvatar"></div>
+      <h2 id="referrerTitle"></h2>
+      <p class="referrer-designation" id="referrerDesignation"></p>
+      <p class="referrer-company" id="referrerCompany"></p>
+      <div class="referrer-links" id="referrerLinks"></div>
+    </div>
+  </div>
+
+  <div class="browse-overlay" id="applyOverlay" aria-hidden="true">
+    <div class="browse-modal apply-modal" role="dialog" aria-modal="true" aria-labelledby="applyTitle">
+      <button class="browse-modal-close" id="closeApply" type="button" aria-label="Close application message">×</button>
+      <div class="empty-icon">↗</div>
+      <h2 id="applyTitle">Application feature coming soon.</h2>
+      <p>Applications will be available in a future update.</p>
+      <button class="btn primary" id="dismissApply" type="button">Close</button>
+    </div>
+  </div>
 
   </main>
 
