@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Referrals | ReferConnect</title>
+  <link rel="stylesheet" href="account-dashboard.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="container nav">
+      <a href="./homepage.html" class="logo"><span class="logo-mark">R</span><span>Refer<span>Connect</span></span></a>
+      <nav class="navlinks" id="navlinks">
+        <a href="./homepage.html">Home</a>
+        <a href="./search-referal/referal.html">Browse Referrals</a>
+        <a href="./my-applications.html">My Applications</a>
+        <a href="./my-referrals.html" class="active">My Referrals</a>
+        <div class="actions mobile-actions">
+          <button class="btn outline auth-login" type="button">Login</button>
+          <button class="btn primary auth-signup" type="button">Sign Up</button>
+          <div class="user-menu hidden" data-user-menu>
+            <button class="btn outline user-menu-toggle" type="button" data-user-toggle aria-expanded="false"></button>
+            <div class="user-dropdown">
+              <a href="./my-applications.html">My Applications</a>
+              <a href="./my-referrals.html">My Referrals</a>
+              <a href="./homepage.html" data-placeholder>Create Referral</a>
+              <button type="button" data-logout>Logout</button>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div class="actions desktop-actions">
+        <button class="btn outline auth-login" type="button">Login</button>
+        <button class="btn primary auth-signup" type="button">Sign Up</button>
+        <div class="user-menu hidden" data-user-menu>
+          <button class="btn outline user-menu-toggle" type="button" data-user-toggle aria-expanded="false"></button>
+          <div class="user-dropdown">
+            <a href="./my-applications.html">My Applications</a>
+            <a href="./my-referrals.html">My Referrals</a>
+            <a href="./homepage.html" data-placeholder>Create Referral</a>
+            <button type="button" data-logout>Logout</button>
+          </div>
+        </div>
+      </div>
+      <button class="menu" id="menuBtn" type="button" aria-label="Open menu">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="container dashboard-heading">
+        <div>
+          <div class="badge">MANAGE YOUR OPPORTUNITIES</div>
+          <h1>My <span>Referrals</span></h1>
+          <p>Review your referral opportunities, track available slots, and manage applicants.</p>
+        </div>
+      </div>
+    </section>
+    <section class="dashboard-content">
+      <div class="container">
+        <p class="dashboard-state" id="dashboardState" role="status" aria-live="polite">Loading your referrals...</p>
+        <div class="referral-list" id="referralList"></div>
+        <div class="empty-card hidden" id="emptyState">
+          <h2>No referrals yet</h2>
+          <p>Referral opportunities you create will appear here.</p>
+          <a class="btn primary" href="./homepage.html">Create a Referral</a>
+        </div>
+        <div class="auth-required hidden" id="authRequired">
+          <h2>Log in to view your referrals</h2>
+          <p>Your referrals and applicant details are available after you sign in.</p>
+          <a class="btn primary" href="./homepage.html?auth=login">Login</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="decisionOverlay" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="decisionTitle">
+      <button class="modal-close" id="closeDecision" type="button" aria-label="Close decision">×</button>
+      <h2 id="decisionTitle">Accept Applicant</h2>
+      <p class="modal-context" id="decisionContext"></p>
+      <label for="decisionMessage">Optional message to the applicant</label>
+      <textarea id="decisionMessage" maxlength="1000"></textarea>
+      <p class="modal-error" id="decisionError" role="status" aria-live="polite"></p>
+      <div class="modal-actions">
+        <button class="btn outline" id="cancelDecision" type="button">Cancel</button>
+        <button class="btn primary" id="confirmDecision" type="button">Confirm</button>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>© 2026 ReferConnect. All rights reserved.</span>
+      <a href="./homepage.html#about">Built to make professional referrals simpler.</a>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script src="account-dashboard.js"></script>
+  <script src="my-referrals.js"></script>
+</body>
+</html>

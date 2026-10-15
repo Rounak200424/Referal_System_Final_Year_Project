@@ -180,7 +180,12 @@ const submitApplication = async (req, res) => {
 
     return res.status(201).json({
       message: "Application submitted successfully.",
-      application,
+      application: {
+        applicationId: application._id,
+        referralId: application.referralId,
+        status: application.status,
+        createdAt: application.createdAt,
+      },
     });
   } catch (error) {
     console.error(

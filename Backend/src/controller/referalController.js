@@ -1,5 +1,53 @@
 const Referral = require("../models/referal");
+const Application = require("../models/Application");
 const Profile = require("../models/Profile");
+
+const getMyReferrals = async (req, res) => {
+  try {
+    const referrals = await Referral.find({ createdBy: req.userId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (referrals.length === 0) {
+      return res.status(200).json({ referrals: [] });
+    }
+
+    const counts = await Application.aggregate([
+      {
+        $match: {
+          referralId: { $in: referrals.map((referral) => referral._id) },
+        },
+      },
+      {
+        $group: {
+          _id: "$referralId",
+          applicantCount: { $sum: 1 },
+        },
+      },
+    ]);
+    const countsByReferralId = new Map(
+      counts.map((item) => [String(item._id), item.applicantCount])
+    );
+
+    return res.status(200).json({
+      referrals: referrals.map((referral) => {
+        const applicantCount =
+          countsByReferralId.get(String(referral._id)) || 0;
+        return {
+          ...referral,
+          applicantCount,
+          remainingSlots: Math.max(0, referral.applicantLimit - applicantCount),
+          applicationsClosed: applicantCount >= referral.applicantLimit,
+        };
+      }),
+    });
+  } catch (error) {
+    console.error("Get my referrals error:", error.code || "unexpected error");
+    return res.status(500).json({
+      message: "Unable to load your referrals.",
+    });
+  }
+};
 
 const getReferrals = async (req, res) => {
   try {
@@ -124,6 +172,7 @@ const createReferral = async (req, res) => {
 };
 
 module.exports = {
+  getMyReferrals,
   getReferrals,
   createReferral,
 };

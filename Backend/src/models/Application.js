@@ -30,6 +30,13 @@ const applicationSchema = new mongoose.Schema(
       default: "PENDING",
       required: true,
     },
+
+    decisionMessage: {
+      type: String,
+      trim: true,
+      default: "",
+      maxlength: 1000,
+    },
   },
   {
     timestamps: true,
