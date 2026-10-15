@@ -511,12 +511,27 @@
   </div>
 
   <div class="browse-overlay" id="applyOverlay" aria-hidden="true">
-    <div class="browse-modal apply-modal" role="dialog" aria-modal="true" aria-labelledby="applyTitle">
-      <button class="browse-modal-close" id="closeApply" type="button" aria-label="Close application message">×</button>
-      <div class="empty-icon">↗</div>
-      <h2 id="applyTitle">Application feature coming soon.</h2>
-      <p>Applications will be available in a future update.</p>
-      <button class="btn primary" id="dismissApply" type="button">Close</button>
+    <div class="browse-modal apply-modal application-form-modal" role="dialog" aria-modal="true" aria-labelledby="applyTitle">
+      <button class="browse-modal-close" id="closeApply" type="button" aria-label="Close application form">×</button>
+      <div class="authhead">
+        <div class="authlogo">R</div>
+        <h2 id="applyTitle">Apply for Referral</h2>
+        <p>Confirm your details and attach your resume.</p>
+      </div>
+      <form id="applicationForm" class="application-form" novalidate>
+        <label for="applicationFullName">Full Name</label>
+        <input id="applicationFullName" name="fullName" type="text" readonly>
+        <label for="applicationEmail">Email Address</label>
+        <input id="applicationEmail" name="email" type="email" readonly>
+        <label for="applicationResume">Upload Resume</label>
+        <input id="applicationResume" name="resume" type="file" accept=".pdf,application/pdf" required>
+        <p class="application-file-note">PDF only, maximum 5 MB.</p>
+        <p class="application-message" id="applicationMessage" role="status" aria-live="polite"></p>
+        <div class="application-form-actions">
+          <button class="btn outline" id="dismissApply" type="button">Cancel</button>
+          <button class="btn primary" id="submitApplication" type="submit">Submit Application</button>
+        </div>
+      </form>
     </div>
   </div>
 

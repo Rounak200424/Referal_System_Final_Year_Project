@@ -1,8 +1,10 @@
 const {
   API_BASE_URL,
+  getAuthToken,
   getStoredUser,
   clearAuthSession,
-  getCurrentUser
+  getCurrentUser,
+  getApiError
 } = window.ReferConnectAuth;
 
 const city = document.getElementById("city");
@@ -16,6 +18,20 @@ const emptyCard = document.getElementById("emptyCard");
 const referralState = document.getElementById("referralState");
 const referrerOverlay = document.getElementById("referrerOverlay");
 const applyOverlay = document.getElementById("applyOverlay");
+const applicationForm = document.getElementById("applicationForm");
+const applicationFullName = document.getElementById("applicationFullName");
+const applicationEmail = document.getElementById("applicationEmail");
+const applicationResume = document.getElementById("applicationResume");
+const applicationMessage = document.getElementById("applicationMessage");
+const submitApplicationButton = document.getElementById("submitApplication");
+const dismissApplicationButton = document.getElementById("dismissApply");
+const closeApplicationButton = document.getElementById("closeApply");
+const appliedReferralIds = new Set();
+let selectedReferralId = "";
+let selectedResumeFile = null;
+let uploadedResumePath = "";
+let isSubmittingApplication = false;
+let applicationUserAuthenticated = false;
 
 function renderSelectedFilters() {
   selectedFilters.innerHTML = "";
@@ -155,6 +171,15 @@ function renderReferrals(referrals) {
       createMeta(referral.professionalCategory || "Category unavailable"),
       createMeta(referral.opportunityCategory || "Opportunity unavailable")
     );
+    const applicantLimit = Number(referral.applicantLimit);
+    const applicationsCount = Number(referral.applicationsCount ?? 0);
+    if (Number.isFinite(applicantLimit) && Number.isFinite(applicationsCount)) {
+      const slots = createMeta(
+        `${Math.max(0, applicantLimit - applicationsCount)} slots left`
+      );
+      slots.classList.add("referral-slots");
+      meta.appendChild(slots);
+    }
     const posted = document.createElement("p");
     posted.className = "referral-posted";
     posted.textContent = formatDate(referral.createdAt);
@@ -182,11 +207,11 @@ function renderReferrals(referrals) {
     }
     const applyButton = document.createElement("button");
     applyButton.type = "button";
-    applyButton.textContent = "Apply";
+    const alreadyApplied = appliedReferralIds.has(String(referral._id));
+    applyButton.textContent = alreadyApplied ? "Applied" : "Apply";
+    applyButton.disabled = alreadyApplied;
     applyButton.addEventListener("click", () => {
-      applyOverlay.classList.add("active");
-      applyOverlay.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
+      handleApply(referral);
     });
     actions.appendChild(applyButton);
     footer.append(referrer, actions);
@@ -202,7 +227,7 @@ function clearReferralResults() {
   referralState.textContent = "";
 }
 
-async function loadReferrals() {
+async function loadReferrals(successMessage = "") {
   referralState.className = "referral-state";
   referralState.textContent = "Loading referrals...";
   searchBtn.disabled = true;
@@ -216,18 +241,257 @@ async function loadReferrals() {
     if (!response.ok) throw new Error("Unable to load referrals.");
     const data = await response.json();
     renderReferrals(Array.isArray(data.referrals) ? data.referrals : []);
-    referralState.textContent = "";
+    referralState.className = successMessage
+      ? "referral-state success"
+      : "referral-state";
+    referralState.textContent = successMessage;
   } catch (error) {
     referralCards.innerHTML = "";
     emptyCard.classList.add("hidden");
     referralState.className = "referral-state error";
-    referralState.textContent = error instanceof TypeError
+    const loadError = error instanceof TypeError
       ? "Cannot connect to the referral service. Please make sure the backend is running."
       : error.message;
+    referralState.textContent = successMessage
+      ? `Application submitted successfully. ${loadError} The referral list could not be refreshed.`
+      : loadError;
   } finally {
     searchBtn.disabled = false;
   }
 }
+
+function setApplicationMessage(message, isSuccess = false) {
+  applicationMessage.textContent = message;
+  applicationMessage.classList.toggle("success", isSuccess);
+}
+
+function resetApplicationForm() {
+  applicationForm.reset();
+  applicationFullName.value = "";
+  applicationEmail.value = "";
+  applicationMessage.textContent = "";
+  applicationMessage.classList.remove("success");
+  selectedReferralId = "";
+  selectedResumeFile = null;
+  uploadedResumePath = "";
+  applicationUserAuthenticated = false;
+  submitApplicationButton.disabled = false;
+  submitApplicationButton.textContent = "Submit Application";
+  applicationResume.disabled = false;
+  dismissApplicationButton.disabled = false;
+  closeApplicationButton.disabled = false;
+  isSubmittingApplication = false;
+}
+
+function closeApplicationModal() {
+  if (isSubmittingApplication) return;
+  closeBrowseModal(applyOverlay);
+  resetApplicationForm();
+}
+
+async function handleApply(referral) {
+  if (!getAuthToken()) {
+    redirectToAuth("login");
+    return;
+  }
+
+  selectedReferralId = String(referral._id || "");
+  if (!selectedReferralId) {
+    referralState.className = "referral-state error";
+    referralState.textContent = "This referral cannot be applied to right now.";
+    return;
+  }
+
+  resetApplicationForm();
+  selectedReferralId = String(referral._id);
+  applicationFullName.value = "Loading account...";
+  applicationEmail.value = "Loading account...";
+  submitApplicationButton.disabled = true;
+  applyOverlay.classList.add("active");
+  applyOverlay.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      closeApplicationModal();
+      redirectToAuth("login");
+      return;
+    }
+
+    applicationFullName.value = user.name || "";
+    applicationEmail.value = user.email || "";
+    if (user.name && user.email) {
+      applicationUserAuthenticated = true;
+      submitApplicationButton.disabled = false;
+    } else {
+      setApplicationMessage("Your account details could not be loaded. Please try again.");
+    }
+  } catch (error) {
+    applicationFullName.value = "";
+    applicationEmail.value = "";
+    setApplicationMessage(
+      "Unable to load your account details. Please check your connection and try again."
+    );
+  }
+}
+
+applicationResume.addEventListener("change", () => {
+  selectedResumeFile = null;
+  uploadedResumePath = "";
+  setApplicationMessage("");
+
+  const file = applicationResume.files[0];
+  if (!file) return;
+
+  const hasPdfExtension = /\.pdf$/i.test(file.name);
+  const hasPdfMimeType = file.type.toLowerCase() === "application/pdf";
+  if (!hasPdfExtension || !hasPdfMimeType) {
+    applicationResume.value = "";
+    setApplicationMessage("Please select a PDF resume.");
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    applicationResume.value = "";
+    setApplicationMessage("Resume file must be 5 MB or smaller.");
+    return;
+  }
+
+  selectedResumeFile = file;
+});
+
+async function getRequestError(response, fallback) {
+  const message = await getApiError(response, fallback);
+  if (response.status !== 409) return message;
+  if (/already applied|duplicate/i.test(message)) {
+    return "You have already applied for this referral.";
+  }
+  if (/limit|reached|closed/i.test(message)) {
+    return "Applications are closed for this referral.";
+  }
+  return message;
+}
+
+applicationForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (isSubmittingApplication) return;
+
+  const token = getAuthToken();
+  if (!token) {
+    redirectToAuth("login");
+    return;
+  }
+
+  if (!selectedReferralId) {
+    setApplicationMessage("Select a referral before submitting.");
+    return;
+  }
+
+  if (!applicationUserAuthenticated) {
+    setApplicationMessage("Please log in again before submitting your application.");
+    return;
+  }
+
+  if (!applicationFullName.value || !applicationEmail.value) {
+    setApplicationMessage("Your account details are incomplete. Please try again.");
+    return;
+  }
+
+  if (!uploadedResumePath && !selectedResumeFile) {
+    setApplicationMessage("Please select a PDF resume.");
+    return;
+  }
+
+  isSubmittingApplication = true;
+  submitApplicationButton.disabled = true;
+  submitApplicationButton.textContent = "Submitting...";
+  applicationResume.disabled = true;
+  dismissApplicationButton.disabled = true;
+  closeApplicationButton.disabled = true;
+  setApplicationMessage("Submitting your application...");
+
+  try {
+    if (!uploadedResumePath) {
+      const formData = new FormData();
+      formData.append("resume", selectedResumeFile);
+      const uploadResponse = await fetch(`${API_BASE_URL}/api/resumes/upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!uploadResponse.ok) {
+        const error = new Error(
+          await getRequestError(uploadResponse, "Unable to upload your resume.")
+        );
+        error.status = uploadResponse.status;
+        throw error;
+      }
+
+      const uploadData = await uploadResponse.json();
+      if (!uploadData.resumePath) {
+        throw new Error("The resume service did not return a storage path.");
+      }
+      uploadedResumePath = uploadData.resumePath;
+    }
+
+    const applicationResponse = await fetch(`${API_BASE_URL}/api/applications`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        referralId: selectedReferralId,
+        resumePath: uploadedResumePath
+      })
+    });
+
+    if (!applicationResponse.ok) {
+      const error = new Error(
+        await getRequestError(
+          applicationResponse,
+          "Unable to submit your application."
+        )
+      );
+      error.status = applicationResponse.status;
+      throw error;
+    }
+
+    await applicationResponse.json();
+    const submittedReferralId = selectedReferralId;
+    appliedReferralIds.add(submittedReferralId);
+    isSubmittingApplication = false;
+    closeBrowseModal(applyOverlay);
+    resetApplicationForm();
+    await loadReferrals("Application submitted successfully.");
+  } catch (error) {
+    if (error.status === 401) {
+      clearAuthSession();
+      renderAuthState(null);
+      applicationUserAuthenticated = false;
+      setApplicationMessage("Your session has expired. Please log in again.");
+    } else {
+      setApplicationMessage(
+        error instanceof TypeError
+          ? "Cannot connect to the application service. Please try again."
+          : error.message
+      );
+    }
+  } finally {
+    if (applyOverlay.classList.contains("active")) {
+      isSubmittingApplication = false;
+      submitApplicationButton.disabled = false;
+      submitApplicationButton.textContent = "Submit Application";
+      applicationResume.disabled = false;
+      dismissApplicationButton.disabled = false;
+      closeApplicationButton.disabled = false;
+    }
+  }
+});
 
 [city, profession, opportunity].forEach((element) => {
   element.addEventListener("change", renderSelectedFilters);
@@ -245,18 +509,20 @@ clearBtn.addEventListener("click", () => {
 });
 
 document.getElementById("closeReferrer").addEventListener("click", () => closeBrowseModal(referrerOverlay));
-document.getElementById("closeApply").addEventListener("click", () => closeBrowseModal(applyOverlay));
-document.getElementById("dismissApply").addEventListener("click", () => closeBrowseModal(applyOverlay));
-[referrerOverlay, applyOverlay].forEach((overlay) => {
+dismissApplicationButton.addEventListener("click", closeApplicationModal);
+closeApplicationButton.addEventListener("click", closeApplicationModal);
+[referrerOverlay].forEach((overlay) => {
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) closeBrowseModal(overlay);
   });
 });
+applyOverlay.addEventListener("click", (event) => {
+  if (event.target === applyOverlay) closeApplicationModal();
+});
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
-  [referrerOverlay, applyOverlay].forEach((overlay) => {
-    if (overlay.classList.contains("active")) closeBrowseModal(overlay);
-  });
+  if (referrerOverlay.classList.contains("active")) closeBrowseModal(referrerOverlay);
+  if (applyOverlay.classList.contains("active")) closeApplicationModal();
 });
 
 const menuBtn = document.getElementById("menuBtn");

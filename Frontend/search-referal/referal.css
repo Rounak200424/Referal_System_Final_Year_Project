@@ -826,6 +826,11 @@ select {
   font-size: 10px;
 }
 
+.referral-meta .referral-slots {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
 .referral-posted {
   color: var(--muted);
   font-size: 11px;
@@ -993,6 +998,101 @@ select {
   margin-top: 20px;
 
   margin-right: 4px;
+}
+
+.application-form-modal {
+  text-align: left;
+}
+
+.application-form-modal .authhead {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.application-form-modal .authlogo {
+  width: 45px;
+  height: 45px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 14px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  color: #fff;
+  font-weight: 900;
+}
+
+.application-form-modal .authhead h2 {
+  font-size: 24px;
+}
+
+.application-form-modal .authhead p {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.application-form {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.application-form label {
+  margin-top: 4px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.application-form input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  outline: none;
+  color: #334155;
+  font-size: 13px;
+}
+
+.application-form input[readonly] {
+  background: #f8fafc;
+}
+
+.application-form input:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px #2563eb14;
+}
+
+.application-form input[type="file"] {
+  padding: 9px;
+  font-size: 12px;
+}
+
+.application-file-note {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.application-message {
+  min-height: 18px;
+  color: #b91c1c;
+  font-size: 12px;
+  text-align: left;
+}
+
+.application-message.success,
+.referral-state.success {
+  color: #15803d;
+}
+
+.application-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 4px;
+}
+
+.application-form-actions .btn {
+  margin: 0;
 }
 
 

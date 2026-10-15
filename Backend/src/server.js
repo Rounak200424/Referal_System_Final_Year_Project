@@ -5,6 +5,8 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const referralRoutes = require("./routes/referalRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const resumeRoutes = require("./routes/resumeRoutes");
+const applicationRoutes = require("./routes/applicationRoutes");
 const app = express();
 
 
@@ -13,6 +15,8 @@ app.use(express.json());
 app.use("/api/referrals", referralRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/resumes", resumeRoutes);
+app.use("/api/applications", applicationRoutes);
 
 app.get("/", (req, res) => {
   res.json({

@@ -64,6 +64,13 @@ const referralSchema = new mongoose.Schema(
       min: 1,
     },
 
+    applicationsCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+      select: false,
+    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

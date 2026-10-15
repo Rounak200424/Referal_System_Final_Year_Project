@@ -20,6 +20,7 @@ const getReferrals = async (req, res) => {
 
     const referrals = await Referral.find(filters)
       .populate("createdBy", "name profilePhoto")
+      .select("+applicationsCount")
       .sort({ createdAt: -1 })
       .lean();
 
